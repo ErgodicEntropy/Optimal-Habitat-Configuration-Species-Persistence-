@@ -1,0 +1,17 @@
+verbosity=0.;
+real Dx=.1,Dy=.1; 
+mesh Th=square(floor(10./Dx),floor(10./Dy), [-5 + 10*x, -5 + 10*y]);
+fespace Vh(Th,P1);
+Vh uh, vh, uh0 = ((x)^2+(y)^2)<=1; 
+
+real mu = 0.1, dt=0.01, Tf=10., k = 3.0;
+macro Grad(u)[dx(u),dy(u)]//
+
+problem KFisher(uh,vh) = int2d(Th)(uh*vh/dt + Grad(uh)'*Grad(vh)*mu) - int2d(Th)(uh0*vh/dt) + int2d(Th)(k*uh0*uh*vh) - int2d(Th)(k*vh*uh0);
+
+for (real t=0.;t<Tf;t+=dt)  
+{
+  KFisher;
+  uh0 = uh;
+  plot(uh0, cmm="t="+t+"[sec]", dim=2, fill=true, value=true, wait=0); 
+}
